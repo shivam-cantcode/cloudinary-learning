@@ -1,16 +1,27 @@
 import { v2 as cloudinary } from "cloudinary";
 import { NextResponse, NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { PrismaClient } from "@/app/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-// Configuration
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+
+const prisma = new PrismaClient({
+  adapter,
+});
+
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUDNAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.NODE_ENV, // Click 'View API Keys' above to copy your API secret
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 interface CloudinaryUploadResult {
   public_id: string;
+  bytes: number;
+  duration?: number;
   [key: string]: any;
 }
 
@@ -19,10 +30,24 @@ export async function POST(request: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   try {
+    if (
+      !process.env.NEXT_PUBLIC_CLOUDINARY_CLOUDNAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
+      return NextResponse.json(
+        { error: "credintials not found" },
+        { status: 401 },
+      );
+    }
     const formData = await request.formData();
 
     const file = formData.get("file") as File | null;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const originalSize = formData.get("originalSize") as string;
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
@@ -31,7 +56,14 @@ export async function POST(request: NextRequest) {
     const result = await new Promise<CloudinaryUploadResult>(
       (resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: "next-cloudinary-uploads" },
+          {
+            resource_type: "video",
+            folder: "video-uploads",
+            transformation: {
+              quality: "auto",
+              fetch_format: "mp4",
+            },
+          },
           (error, result) => {
             if (error) {
               reject(error);
@@ -43,7 +75,16 @@ export async function POST(request: NextRequest) {
         uploadStream.end(buffer);
       },
     );
-    return NextResponse.json({ publicId: result.public_id }, { status: 200 });
+    const video = await prisma.video.create({
+      data: {
+        title,
+        description,
+        PublicId: result.public_id,
+        originalSize: Number(originalSize),
+        compresssize: result.bytes,
+        duration: result.duration ?? 0,
+      },
+    });
   } catch (error) {
     return NextResponse.json({ error: "upload image failed" }, { status: 500 });
     console.log(error);
