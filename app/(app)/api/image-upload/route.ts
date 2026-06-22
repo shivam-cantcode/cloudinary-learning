@@ -6,7 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUDNAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.NODE_ENV, // Click 'View API Keys' above to copy your API secret
+  api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View API Keys' above to copy your API secret
 });
 
 interface CloudinaryUploadResult {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     );
     return NextResponse.json({ publicId: result.public_id }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "upload image failed" }, { status: 500 });
     console.log(error);
+    return NextResponse.json({ error: "upload image failed" }, { status: 500 });
   }
 }
