@@ -58,43 +58,12 @@ Users can securely upload videos, store metadata in a PostgreSQL database, previ
 
 ---
 
-# 📸 Screenshots
 
-## Home Dashboard
-
-<p align="center">
-  <img src="./screenshots/home.png" width="900">
-</p>
-
-## Video Upload Page
-
-<p align="center">
-  <img src="./screenshots/upload.png" width="900">
-</p>
-
-## Social Share Generator
-
-<p align="center">
-  <img src="./screenshots/social-share.png" width="900">
-</p>
 
 ---
 
-# 🏗️ Architecture Diagram
 
-<p align="center">
-  <img src="./screenshots/architecture.png" width="1000">
-</p>
 
-### Editable Draw.io File
-
-The editable diagram is available in:
-
-```text
-/diagrams/Untitled Diagram.drawio
-```
-
----
 
 ## Architecture Diagram
 
