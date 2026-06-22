@@ -68,7 +68,7 @@ Users can securely upload videos, store metadata in a PostgreSQL database, previ
 ## Architecture Diagram
 
 <p align="center">
-  <img src="./screenshot/UntitledDiagram.drawio.png" width="1000">
+  <img src="./screenshot/flow.png" width="1000">
 </p>
 
 ---
