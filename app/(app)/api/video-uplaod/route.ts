@@ -17,6 +17,11 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+console.log({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUDNAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret_exists: !!process.env.CLOUDINARY_API_SECRET,
+});
 
 interface CloudinaryUploadResult {
   public_id: string;

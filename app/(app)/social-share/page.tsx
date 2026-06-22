@@ -38,7 +38,7 @@ export default function socialShare() {
 
   const [isTransforming, setIsTransforming] = useState(false);
 
-  const imageRef = useRef<HTMLImageElement>(null);
+  // const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (uploaded) {
@@ -62,7 +62,7 @@ export default function socialShare() {
       });
       if (!response.ok) throw new Error("failed to upload image");
       const data = await response.json();
-      setUploaded(data.ublicId);
+      setUploaded(data.publicId);
     } catch (error) {
       console.log(error);
       alert("failed to upload image");
@@ -71,22 +71,48 @@ export default function socialShare() {
     }
   };
 
-  const handleDownload = () => {
-    if (!imageRef.current) return;
-    fetch(imageRef.current.src)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${selectFormat
-          .replace(/\s+/g, "-")
-          .toLowerCase()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      });
+  // const handleDownload = () => {
+  //   if (!imageRef.current) return;
+  //   fetch(imageRef.current.src)
+  //     .then((response) => response.blob())
+  //     .then((blob) => {
+  //       const url = window.URL.createObjectURL(blob);
+  //       const link = document.createElement("a");
+  //       link.href = url;
+  //       link.download = `${selectFormat
+  //         .replace(/\s+/g, "-")
+  //         .toLowerCase()}.png`;
+  //       document.body.appendChild(link);
+  //       link.click();
+  //       document.body.removeChild(link);
+  //       window.URL.revokeObjectURL(url);
+  //     });
+  // };
+  const handleDownload = async () => {
+    if (!uploaded) return;
+
+    try {
+      const response = await fetch(
+        `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUDNAME}/image/upload/${uploaded}`,
+      );
+
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${selectFormat.replace(/\s+/g, "-").toLowerCase()}.png`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to download image");
+    }
   };
 
   return (
@@ -151,7 +177,7 @@ export default function socialShare() {
                     crop="fill"
                     aspectRatio={socialFormats[selectFormat].aspectRatio}
                     gravity="auto"
-                    ref={imageRef}
+                    // ref={imageRef}
                     onLoad={() => setIsTransforming(false)}
                   />
                 </div>

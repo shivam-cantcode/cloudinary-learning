@@ -1,8 +1,8 @@
+"use client";
 import React, { useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { setupDevBundler } from "next/dist/server/lib/router-utils/setup-dev-bundler";
 
 function videoupload() {
   const [file, setfile] = useState<File | null>(null);
