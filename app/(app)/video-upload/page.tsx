@@ -27,14 +27,16 @@ function videoupload() {
     formData.append("description", description);
     formData.append("originalSize", file.size.toString());
     try {
-      const res = await axios.post("/api/video-uplaod", formData);
+      const res = await axios.post("/api/video-upload", formData);
       if (res.status === 200) {
         toast.success("Video uploaded successfully");
         router.push("/");
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
+    } catch (error: any) {
+      console.error("FULL ERROR:", error);
+      console.error("RESPONSE DATA:", error.response?.data);
+
+      toast.error(error.response?.data?.error || "Something went wrong");
     } finally {
       setIsUploading(false);
     }
