@@ -1,7 +1,93 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
+import { toast } from "sonner";
+import { setupDevBundler } from "next/dist/server/lib/router-utils/setup-dev-bundler";
 
 function videoupload() {
-  return <div>videoupload</div>;
+  const [file, setfile] = useState<File | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+  const MAX_FILE_SIZE = 70 * 1024 * 1024;
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File size is too large");
+      return;
+    }
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("originalSize", file.size.toString());
+    try {
+      const res = await axios.post("/api/video-uplaod", formData);
+      if (res.status === 200) {
+        toast.success("Video uploaded successfully");
+        router.push("/");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Upload Video</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="label">
+            <span className="label-text">Title</span>
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="input input-bordered w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="label">
+            <span className="label-text">Description</span>
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="textarea textarea-bordered w-full"
+          />
+        </div>
+        <div>
+          <label className="label">
+            <span className="label-text">Video File</span>
+          </label>
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) => setfile(e.target.files?.[0] || null)}
+            className="file-input file-input-bordered w-full"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={isUploading}
+        >
+          {isUploading ? "Uploading..." : "Upload Video"}
+        </button>
+      </form>
+    </div>
+  );
 }
 
 export default videoupload;
