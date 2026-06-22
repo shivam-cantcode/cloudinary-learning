@@ -105,13 +105,7 @@ prisma
 screenshots
 │
 ├── architecture.png
-├── home.png
-├── upload.png
-└── social-share.png
-│
-diagrams
-│
-└── Untitled Diagram.drawio
+
 ```
 
 ---
